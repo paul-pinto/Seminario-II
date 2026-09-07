@@ -1,0 +1,551 @@
+\documentclass[11pt,letterpaper]{article}
+
+% ============================================================
+% Seminario de Investigación II
+% Universidad Católica Boliviana "San Pablo"
+% Maestría en Ciencia de Datos e Inteligencia Artificial Aplicada
+% Compilador recomendado: pdfLaTeX + Biber
+% ============================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{pdflscape}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{csquotes}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage[backend=biber,style=authoryear,sorting=nyt,maxcitenames=2,maxbibnames=20]{biblatex}
+\addbibresource{referencias.bib}
+
+\setstretch{1.12}
+
+\definecolor{azul}{HTML}{16324F}
+\definecolor{azul2}{HTML}{285F85}
+\definecolor{gris}{HTML}{F1F4F7}
+\definecolor{verde}{HTML}{25735B}
+\definecolor{rojo}{HTML}{9C3F3F}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    citecolor=blue!50!black,
+    urlcolor=blue!50!black,
+    pdftitle={Seminario de Investigación II - Bitcoin},
+    pdfauthor={Jhonny Paul Pinto Phillips}
+}
+
+\titleformat{\section}{\Large\bfseries\color{azul}}{\thesection.}{0.55em}{}
+\titleformat{\subsection}{\large\bfseries\color{azul2}}{\thesubsection.}{0.55em}{}
+
+\setlist[itemize]{leftmargin=1.4em,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=2pt,topsep=3pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Seminario de Investigación II}
+\rhead{Bitcoin: estabilidad e interpretabilidad}
+\cfoot{\thepage\ de \pageref{LastPage}}
+\setlength{\headheight}{14pt}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\newcommand{\gapbox}[1]{\par\medskip\noindent\colorbox{gris}{\parbox{0.96\linewidth}{\textbf{Brecha derivada:} #1}}\medskip}
+\newcommand{\critica}[1]{\par\smallskip\noindent\textbf{Lectura crítica.} #1}
+\newcommand{\statusok}{\textcolor{verde}{\checkmark}}
+
+\begin{document}
+\shorthandoff{"}
+
+% ============================================================
+% PORTADA
+% ============================================================
+
+\begin{titlepage}
+    \centering
+    \thispagestyle{empty}
+
+    \includegraphics[width=.5\textwidth]{ucb-logo.png}\\[0.1cm]
+
+    {\large UNIVERSIDAD CATÓLICA BOLIVIANA ``SAN PABLO''}\\[0.1cm]
+    {\large SEDE SANTA CRUZ}\\[1cm]
+
+    {\large MAESTRÍA EN CIENCIA DE DATOS E INTELIGENCIA ARTIFICIAL APLICADA}\\[0.4cm]
+    {\large SEMINARIO DE INVESTIGACIÓN II}\\[1cm]
+
+    \rule{\textwidth}{0.4pt}\\[0.60cm]
+
+    % Título principal: compacto, equilibrado y visualmente centrado
+    \begin{minipage}{0.88\textwidth}
+        \centering
+        {\fontsize{18}{22}\selectfont\bfseries
+        Estabilidad e interpretabilidad de los determinantes\\[0.10cm]
+        predictivos del precio de Bitcoin
+        }\\[0.42cm]
+        {\fontsize{13.5}{17}\selectfont
+        Evaluación mediante Machine Learning y Deep Learning\\[0.08cm]
+        bajo diferentes condiciones de mercado
+        }
+    \end{minipage}
+
+    \par\vspace{0.60cm}
+    \rule{\textwidth}{0.4pt}\\[1cm]
+
+    {\large\textbf{Estudiante:}}\\[0.3cm]
+
+    {\large
+    Jhonny Paul Pinto Phillips
+    }
+
+    \vfill
+
+    {\large Santa Cruz de la Sierra, Bolivia}\\
+    {\large 6 de septiembre de 2026}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Tema y delimitación de la investigación}
+
+\textbf{Tema propuesto.} Evaluación de la estabilidad e interpretabilidad de los determinantes predictivos del precio de Bitcoin mediante modelos de Machine Learning (ML) y Deep Learning (DL) bajo diferentes condiciones o regímenes de mercado.
+
+La investigación se delimita al activo Bitcoin (BTC) y a series temporales con frecuencia diaria. Se consideran tres familias de información: (i) variables de mercado y financieras, (ii) variables tecnológicas/on-chain y (iii) variables asociadas con atención o actividad de los participantes. El interés científico no es encontrar de antemano ``el mejor algoritmo'' ni construir una estrategia de trading, sino estudiar si la importancia predictiva de las variables permanece estable cuando cambian el período, el régimen de mercado o la familia de modelo.
+
+\section{Evidencia de que el problema existe}
+
+La volatilidad por sí sola no constituye el problema de investigación. La evidencia más relevante es que las relaciones predictivas de Bitcoin cambian con el tiempo. El Banco de España reportó en 2025 que el comportamiento de Bitcoin se encuentra influido por factores económicos, tecnológicos y de atención de los inversores, y que el impacto de dichos factores varía temporalmente \parencite{bde2025}. El mismo informe observa que, en los primeros años, factores tecnológicos como la dificultad de minado tuvieron mayor relevancia, mientras que desde 2018 aumentó el peso de la atención pública. También señala que variables como el S\&P 500 y el oro no se comportaron como determinantes estables \parencite{bde2025}.
+
+Existe además evidencia de \emph{aparición de nuevos factores}. El Banco de España indica que el fuerte aumento de 2024, coincidente con la aprobación en Estados Unidos de ETF spot de Bitcoin, no podía explicarse mediante un modelo entrenado en un período anterior porque ese factor no estaba presente en sus datos de entrenamiento \parencite{bde2025}. Esto constituye evidencia contextual directa del riesgo de transferir relaciones aprendidas históricamente a condiciones nuevas.
+
+\subsection{Formulación preliminar del problema -- requiere validación empírica}
+
+\begin{quote}
+La literatura reciente muestra que el comportamiento del precio de Bitcoin puede modelarse mediante variables financieras, tecnológicas y relacionadas con la atención de los participantes. Sin embargo, la contribución predictiva de dichas variables no permanece necesariamente estable a través del tiempo. La no estacionariedad, los cambios de régimen y la aparición de nuevos factores de mercado dificultan transferir relaciones aprendidas en un período hacia otro. Adicionalmente, la importancia asignada a las variables puede depender de la familia de modelo y algunos estudios presentan restricciones de reproducibilidad. En consecuencia, no está suficientemente establecido qué determinantes predictivos mantienen una importancia consistente bajo diferentes condiciones de mercado ni en qué medida dicha estabilidad depende del modelo utilizado.
+\end{quote}
+
+No se afirma una relación causal entre las variables y el precio. La investigación evaluará asociaciones predictivas y estabilidad de explicaciones de modelos.
+
+\section{Pregunta y objetivos}
+
+\subsection{Pregunta de investigación}
+
+\begin{quote}
+\textbf{¿Cómo varían la importancia y estabilidad de los determinantes financieros, tecnológicos y de atención del precio de Bitcoin entre diferentes condiciones de mercado, y en qué medida dichas variaciones dependen del modelo de Machine Learning o Deep Learning utilizado?}
+\end{quote}
+
+\subsection{Objetivo general}
+
+Evaluar la estabilidad e interpretabilidad de los principales determinantes predictivos del precio de Bitcoin mediante modelos de Machine Learning y Deep Learning bajo diferentes condiciones de mercado.
+
+\subsection{Objetivos específicos}
+\begin{enumerate}
+  \item Identificar en literatura científica reciente los factores financieros, tecnológicos y de atención empleados para modelar el comportamiento de Bitcoin.
+  \item Caracterizar los métodos de ML, DL, series temporales e interpretabilidad utilizados y sus principales limitaciones.
+  \item Analizar cómo cambia la importancia de las variables entre diferentes períodos o regímenes de mercado.
+  \item Comparar preliminarmente familias de modelos según desempeño predictivo, interpretabilidad, estabilidad y requerimientos computacionales.
+  \item Definir un conjunto de datos públicos y reproducibles para una futura prueba de concepto (PoC).
+\end{enumerate}
+
+\section{Estrategia de búsqueda de literatura}
+
+La búsqueda se diseñó para cubrir el dominio financiero, la tecnología y la ciencia subyacente. Se priorizaron artículos de 2024--2026, revisados por pares y directamente relacionados con Bitcoin, forecasting, explicabilidad o cambios de régimen. Se consultaron páginas de los editores (Elsevier/ScienceDirect y Springer Nature), versiones institucionales de los trabajos cuando estaban disponibles, y se verificaron DOI. Para caracterizar las revistas se utilizó SCImago Journal \& Country Rank (SJR).
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Cadenas de búsqueda y cobertura multidisciplinaria.}
+\begin{tabularx}{\textwidth}{p{0.28\textwidth} X p{0.22\textwidth}}
+\toprule
+\textbf{Eje} & \textbf{Cadena de búsqueda documentada} & \textbf{Disciplina} \\
+\midrule
+Determinantes & \texttt{"Bitcoin price determinants" AND ("machine learning" OR "deep learning")} & Economía / finanzas + IA \\
+Interpretabilidad & \texttt{"Bitcoin forecasting" AND (SHAP OR "explainable AI" OR interpretability)} & XAI / ciencia de datos \\
+Regímenes & \texttt{cryptocurrency AND "regime switching" AND (LSTM OR "machine learning")} & Estadística financiera / econometría \\
+Variables externas & \texttt{Bitcoin AND (macroeconomic OR technological OR "investor attention") AND forecasting} & Economía / sistemas de información \\
+No estacionariedad & \texttt{Bitcoin AND non-stationary AND forecasting} & Series temporales \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Criterios de inclusión:} publicación reciente; artículo científico revisado por pares; relación directa con Bitcoin o con regímenes de criptomonedas aplicados explícitamente a BTC; datos empíricos; metodología identificable; utilidad para problema, datos, interpretabilidad o generalización.
+
+\textbf{Criterios de exclusión:} trabajos centrados únicamente en señales de compra/venta sin aporte a la pregunta; duplicados/preprints cuando existe versión de registro; estudios sin conexión suficiente con Bitcoin; artículos cuyo foco no permite derivar limitaciones transferibles al problema.
+
+\section{Mapeo de revistas mediante SCImagoJR}
+
+Para mantener comparabilidad bibliométrica se registra el \textbf{SJR 2024} para las tres revistas. SCImago caracteriza la \emph{revista}; el cuartil no demuestra que un algoritmo, artículo o resultado sea superior. Los indicadores fueron consultados el 7 de septiembre de 2026.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Cobertura multidisciplinaria y SCImagoJR.}
+\begin{tabularx}{\textwidth}{p{0.28\textwidth} p{0.12\textwidth} p{0.09\textwidth} X p{0.18\textwidth}}
+\toprule
+\textbf{Revista} & \textbf{SJR 2024} & \textbf{Cuartil} & \textbf{Área/categorías relevantes} & \textbf{Disciplina representada} \\
+\midrule
+International Review of Economics \& Finance & 1.372 & Q1 & Economics, Econometrics and Finance; Finance / Economics and Econometrics & Economía y finanzas \\
+Knowledge-Based Systems & 1.934 & Q1 & Computer Science; Artificial Intelligence; Software; Information Systems & IA / ML / sistemas de conocimiento \\
+Digital Finance & 0.470 & Q2 & Finance; Computer Science Applications & Finanzas digitales / FinTech / computación aplicada \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+SCImago reporta para \emph{International Review of Economics and Finance} SJR 1.372 y Q1 en 2024 \parencite{scimagoiref}; para \emph{Knowledge-Based Systems}, SJR 1.934 y Q1 \parencite{scimagokbs}; y para \emph{Digital Finance}, SJR 0.470 y Q2 \parencite{scimagodf}.
+
+\section{Ficha 1: Carbó y Gorjón (2024)}
+
+\textbf{Referencia.} \textcite{carbo2024}. DOI: \href{https://doi.org/10.1016/j.iref.2024.01.070}{10.1016/j.iref.2024.01.070}. Los detalles metodológicos se contrastaron con la versión institucional del Banco de España que precede a la versión publicada \parencite{carbo2022wp}.
+
+\subsection{Problema y objetivo}
+El artículo aborda la dificultad de establecer qué variables explican/predicen el precio de Bitcoin y si su influencia es estable. El objetivo no es únicamente minimizar el error de forecasting: se busca identificar la contribución de factores tecnológicos, económico-financieros y de atención pública, y estudiar su evolución temporal.
+
+\subsection{Datos}
+\begin{itemize}
+  \item \textbf{Frecuencia y período:} diaria, días hábiles, enero de 2015 a julio de 2021.
+  \item \textbf{Número de variables explicativas:} 25.
+  \item \textbf{Fuentes:} Coin Metrics (tecnología/on-chain), Yahoo Finance (financieras), Google Trends (atención) y BitInfoCharts (tweets).
+  \item \textbf{Variables tecnológicas:} dificultad/hash rate, direcciones únicas/activas, número de bloques, tamaño de bloque, transferencias, comisiones/minería, entre otras.
+  \item \textbf{Financieras:} oro, petróleo, S\&P 500, FTSE, Dow Jones, NASDAQ y tipos de cambio frente al dólar.
+  \item \textbf{Atención:} búsquedas de Google Trends y volumen de tweets asociados con Bitcoin.
+\end{itemize}
+
+Los autores separan el análisis en etapas de lanzamiento, expansión y consolidación, con división temporal aproximada 70\% entrenamiento, 5\% validación y 25\% prueba, y realizan análisis de robustez desplazando fechas de corte \parencite{carbo2022wp}.
+
+\subsection{Metodología}
+Se utiliza una red LSTM y posteriormente SHAP para atribuir contribuciones a las variables. En la versión institucional se documentan tres capas ocultas (256, 128 y 64 nodos), tasa de aprendizaje 0.001, dropout 0.1, MSE como función de pérdida y memoria de pocos días \parencite{carbo2022wp}.
+
+\subsection{Resultados}
+El hallazgo central es la \textbf{inestabilidad temporal de la importancia}. Las variables tecnológicas tienen mayor peso en períodos iniciales y pierden relevancia posteriormente; los indicadores de atención pública ganan importancia. Google Trends incrementa sustancialmente su contribución relativa entre etapas, mientras que no se encuentra evidencia consistente de que S\&P 500 u oro actúen como determinantes estables en toda la muestra \parencite{carbo2022wp}.
+
+\subsection{Limitaciones}
+\textbf{Reconocidas/derivadas del estudio:}
+\begin{itemize}
+  \item la delimitación de etapas contiene decisiones del investigador, aunque se realizan pruebas de robustez;
+  \item las métricas de Google/Twitter no distinguen con precisión público general de inversores especializados;
+  \item una selección más amplia de términos/hashtags podría capturar mejor la atención;
+  \item la muestra termina en 2021 y no contiene eventos estructurales posteriores.
+\end{itemize}
+
+\critica{SHAP explica la contribución de variables a las predicciones de una LSTM concreta; no prueba causalidad económica. Tampoco puede asumirse que el ranking de variables se preserve en modelos basados en árboles u otras arquitecturas.}
+
+\subsection{Relevancia y transferibilidad}
+\textbf{Transferible:} taxonomía de variables, partición temporal, comparación por períodos, LSTM como referencia DL y SHAP como herramienta de explicación.
+
+\textbf{No transferible automáticamente:} que Google Trends, dificultad de minado u otra variable conserve en 2026 la misma importancia que en 2015--2021; ni que la importancia calculada para LSTM sea universal.
+
+\gapbox{Validar si la inestabilidad observada persiste en períodos posteriores a 2021 y si la importancia de variables se mantiene o cambia al utilizar familias de modelos distintas.}
+
+\section{Ficha 2: Mizdrakovic et al. (2024)}
+
+\textbf{Referencia.} \textcite{mizdrakovic2024}. DOI: \href{https://doi.org/10.1016/j.knosys.2024.112026}{10.1016/j.knosys.2024.112026}.
+
+\subsection{Problema y objetivo}
+El trabajo parte de la volatilidad, no linealidad y dificultad de forecasting de Bitcoin. Propone mejorar el pronóstico combinando descomposición de señales, redes recurrentes, optimización metaheurística y explicabilidad.
+
+\subsection{Datos}
+\begin{itemize}
+  \item \textbf{Período:} septiembre de 2019 a septiembre de 2022 (aproximadamente tres años).
+  \item \textbf{Variables:} cierre de Bitcoin, cierre de Ethereum, S\&P 500, VIX, EUR/USD, GBP/USD y número diario de tweets relacionados con Bitcoin.
+  \item \textbf{Disponibilidad:} el artículo declara que los datos utilizados son \textbf{confidenciales}; por tanto, el experimento no es exactamente reproducible a partir de un dataset publicado por los autores.
+\end{itemize}
+
+\subsection{Metodología}
+Se propone un framework de dos capas. Primero, \emph{Variational Mode Decomposition} (VMD) descompone las series; luego LSTM y BiLSTM realizan forecasting multistep. Los hiperparámetros de VMD y redes son optimizados con una variante mejorada del \emph{Sine Cosine Algorithm}. Se realizan experimentos con y sin VMD y comparaciones con múltiples optimizadores. Finalmente se emplean valores de Shapley/SHAP para interpretación \parencite{mizdrakovic2024}.
+
+\subsection{Resultados}
+Bajo el protocolo del artículo, la descomposición temporal mejora el forecasting. En el análisis explicativo aparecen con relevancia EUR/USD, el precio de Ethereum y GBP/USD. Estos resultados no deben compararse numéricamente con Carbó y Gorjón porque difieren período, variables, transformaciones, objetivo y procedimiento experimental.
+
+\subsection{Limitaciones}
+\begin{itemize}
+  \item \textbf{Reproducibilidad:} los datos son declarados confidenciales.
+  \item \textbf{Ventana histórica específica:} 2019--2022 abarca pandemia, bull market y caída de 2022.
+  \item \textbf{Complejidad:} VMD + LSTM/BiLSTM + metaheurística + SHAP aumenta costo, decisiones de diseño y riesgo de ajuste al protocolo.
+  \item La importancia de factores puede ser sensible al pipeline y al régimen histórico.
+\end{itemize}
+
+\critica{La sofisticación de una arquitectura no demuestra por sí misma mejor capacidad de transferencia. Es necesario distinguir mejora dentro de una muestra concreta de robustez fuera de muestra y reproducibilidad.}
+
+\subsection{Relevancia y transferibilidad}
+\textbf{Transferible:} inclusión de activos/variables externas, VIX y tipos de cambio; validación temporal; comparación LSTM/BiLSTM; uso de explicación post-hoc.
+
+\textbf{No transferible automáticamente:} que EUR/USD, ETH y GBP/USD sean los factores más relevantes en otros períodos o modelos; ni los resultados exactos al no disponerse del dataset original.
+
+\gapbox{Evaluar con datos públicos y reproducibles si los factores destacados persisten en ventanas temporales más recientes, regímenes distintos y modelos alternativos.}
+
+\section{Ficha 3: Agakishiev et al. (2025)}
+
+\textbf{Referencia.} \textcite{agakishiev2025}. DOI: \href{https://doi.org/10.1007/s42521-024-00123-2}{10.1007/s42521-024-00123-2}. Artículo Open Access.
+
+\subsection{Problema y objetivo}
+Los autores señalan que el comportamiento de los retornos cambia con el tiempo y que esto es especialmente relevante en criptomonedas. En lugar de asumir una única distribución estable, modelan estados/regímenes. El objetivo es pronosticar el siguiente régimen y utilizar esa información como entrada de un sistema de asignación de portafolio.
+
+\subsection{Datos}
+\begin{itemize}
+  \item \textbf{BTC metadata:} datos diarios del Blockchain Research Center (BRC), del 7 de septiembre de 2015 al 31 de mayo de 2022.
+  \item \textbf{CRIX:} datos horarios del índice de criptomonedas para la etapa de Reinforcement Learning.
+  \item \textbf{Preprocesamiento:} media móvil de 30 días para la mayoría de variables y forward-fill de faltantes.
+  \item \textbf{Regímenes:} baja volatilidad, alta volatilidad y distress, definidos mediante cuantiles de volatilidad/retorno y zonas buffer.
+\end{itemize}
+
+Para forecasting de regímenes, entrenamiento 08/08/2015--10/12/2019 y prueba 11/12/2019--27/02/2022. Para la etapa RL: entrenamiento 06/03/2020--08/07/2021, validación 09/07/2021--19/12/2021 y prueba 20/12/2021--31/05/2022 \parencite{agakishiev2025}.
+
+\subsection{Metodología}
+Se comparan ARMA-GARCH y LSTM para predecir el régimen. Por el desbalance de clases temporal, no se aplica oversampling/undersampling; se introduce una función de pérdida ponderada. LIME se usa para explicar las variables que afectan la clasificación de régimen. La segunda etapa entrena variantes de Reinforcement Learning con probabilidades de régimen, régimen predicho y un baseline sin régimen; finalmente se utiliza PPO como arquitectura estable \parencite{agakishiev2025}.
+
+\subsection{Resultados}
+LSTM ponderada mejora la detección de cambios de régimen según el peso asignado. LIME muestra gran influencia de regímenes previos, precio, volatilidad y drawdown, junto con metadata vinculada al volumen/actividad (monedas enviadas, fee promedio, valor promedio de transacción, direcciones únicas, fee/reward). La información de regímenes mejora resultados de entrenamiento de RL, pero \textbf{no se detecta una mejora clara fuera de muestra en validación/prueba}. Los autores atribuyen parte de la dificultad a la no estacionariedad y a la escasez de cambios de régimen \parencite{agakishiev2025}.
+
+\subsection{Limitaciones}
+Los autores indican que el enfoque exige información significativa para determinar regímenes, una serie suficientemente larga y una distribución relativamente similar entre entrenamiento y prueba; reconocen que esto último complica el problema. Las definiciones de régimen pueden introducir ruido futuro. Sugieren evaluar otras arquitecturas/mercados y aspectos como costos de transacción \parencite{agakishiev2025}.
+
+\critica{La definición de umbrales de régimen es parcialmente heurística. Además, el objetivo final del artículo es asignación de portafolio, por lo que su transferencia a nuestro problema es conceptual/metodológica y no una réplica completa del pipeline RL.}
+
+\subsection{Relevancia y transferibilidad}
+\textbf{Transferible:} reconocer explícitamente cambios de régimen, usar divisiones cronológicas, tratar desbalance sin romper orden temporal, y evaluar explicaciones por condición de mercado.
+
+\textbf{No transferible automáticamente:} el componente de PPO/CRIX, porque nuestra pregunta no busca optimización de portafolio.
+
+\gapbox{La literatura de regime switching reconoce cambios de dinámica, pero falta estudiar sistemáticamente cómo esos regímenes modifican la estabilidad de la importancia de variables en distintos modelos predictivos de Bitcoin.}
+
+\section{Matriz comparativa de literatura}
+
+La matriz se organiza en dos paneles complementarios para conservar legibilidad en formato carta. \textbf{Cada fila representa el mismo artículo en ambos paneles}; en conjunto se cubren todos los campos exigidos por la guía: identificación bibliográfica, SJR/cuatril, problema, objetivo, dataset, procedencia, tamaño/período, disponibilidad, método/modelo, resultados, limitaciones, relevancia, transferibilidad y research gap.
+
+{\pagestyle{plain}
+\begin{landscape}
+\thispagestyle{plain}
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.28}
+\begin{longtable}{p{1.55cm} p{2.8cm} p{2.9cm} p{1.25cm} p{2.8cm} p{2.8cm} p{4.0cm} p{3.6cm}}
+\caption{Matriz comparativa -- Panel A: identificación, problema, objetivo, datos y metodología.}\\
+\toprule
+\textbf{Autor/año} & \textbf{Título} & \textbf{Revista / DOI} & \textbf{SJR / Q} & \textbf{Problema} & \textbf{Objetivo} & \textbf{Dataset / datos} & \textbf{Método / modelo} \\
+\midrule
+\endfirsthead
+\caption[]{Matriz comparativa -- Panel A (continuación).}\\
+\toprule
+\textbf{Autor/año} & \textbf{Título} & \textbf{Revista / DOI} & \textbf{SJR / Q} & \textbf{Problema} & \textbf{Objetivo} & \textbf{Dataset / datos} & \textbf{Método / modelo} \\
+\midrule
+\endhead
+
+Carbó \& Gorjón (2024) &
+Determinants of the price of bitcoin: An analysis with machine learning and interpretability techniques &
+International Review of Economics \& Finance; DOI: 10.1016/j.iref.2024.01.070 &
+1.372 / Q1 &
+Determinar qué factores explican/predicen el precio de BTC y si su importancia permanece estable en el tiempo. &
+Identificar factores tecnológicos, económico-financieros y de atención, y analizar su evolución temporal. &
+25 variables; frecuencia diaria; ene-2015--jul-2021. Fuentes: Coin Metrics, Yahoo Finance, Google Trends y BitInfoCharts. Variables tecnológicas/on-chain, índices/activos financieros, tipos de cambio y proxies de atención. Fuentes mayormente públicas; la combinación exacta debe reconstruirse. &
+LSTM; división temporal aproximada 70\% train, 5\% validación y 25\% test; análisis por etapas; SHAP para importancia de variables; pruebas de robustez desplazando cortes temporales. \\
+\midrule
+
+Mizdrakovic et al. (2024) &
+Forecasting bitcoin: Decomposition aided long short-term memory based time series modeling and its explanation with Shapley values &
+Knowledge-Based Systems; DOI: 10.1016/j.knosys.2024.112026 &
+1.934 / Q1 &
+Mejorar el forecasting de Bitcoin bajo alta volatilidad y no linealidad, manteniendo capacidad de explicación. &
+Desarrollar un framework de descomposición + DL y explicar la contribución de variables exógenas. &
+Sep-2019--sep-2022; BTC, ETH, S\&P 500, VIX, EUR/USD, GBP/USD y volumen diario de tweets. El artículo declara los datos experimentales como confidenciales; no permite réplica exacta del dataset. &
+VMD + LSTM/BiLSTM; variante mejorada de Sine Cosine Algorithm para optimización; experimentos con/sin VMD; comparación con otros optimizadores; SHAP/Shapley para explicación. \\
+\midrule
+
+Agakishiev et al. (2025) &
+Regime switching forecasting for cryptocurrencies &
+Digital Finance; DOI: 10.1007/s42521-024-00123-2 &
+0.470 / Q2 &
+Los retornos de criptomonedas cambian entre estados de mercado, lo que dificulta asumir una única dinámica y generalizar. &
+Pronosticar regímenes de mercado y evaluar si esa información mejora una decisión financiera posterior. &
+Metadata diaria de BTC del Blockchain Research Center, aprox. 2015--2022; para portafolio, serie horaria del índice CRIX. Tres regímenes de mercado. Artículo y código abiertos; la disponibilidad exacta de cada serie depende del BRC/CRIX. &
+ARMA-GARCH y LSTM para predicción de regímenes; pérdida ponderada para desbalance; LIME para explicación; PPO/Reinforcement Learning para asignación de portafolio. \\
+\bottomrule
+\end{longtable}
+\end{landscape}
+
+\begin{landscape}
+\thispagestyle{plain}
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{1.28}
+\begin{longtable}{p{1.55cm} p{3.3cm} p{4.1cm} p{3.25cm} p{3.0cm} p{3.0cm} p{3.9cm}}
+\caption{Matriz comparativa -- Panel B: resultados, limitaciones, relevancia, transferibilidad y brechas.}\\
+\toprule
+\textbf{Autor/año} & \textbf{Resultados} & \textbf{Limitaciones} & \textbf{Relevancia para esta investigación} & \textbf{Qué es transferible} & \textbf{Qué no es transferible} & \textbf{Research gap derivado} \\
+\midrule
+\endfirsthead
+\caption[]{Matriz comparativa -- Panel B (continuación).}\\
+\toprule
+\textbf{Autor/año} & \textbf{Resultados} & \textbf{Limitaciones} & \textbf{Relevancia para esta investigación} & \textbf{Qué es transferible} & \textbf{Qué no es transferible} & \textbf{Research gap derivado} \\
+\midrule
+\endhead
+
+Carbó \& Gorjón (2024) &
+La importancia de los factores cambia entre períodos: variables tecnológicas pierden peso; la atención pública gana relevancia; algunos factores financieros no muestran estabilidad consistente. &
+Muestra hasta 2021; períodos definidos parcialmente por criterio del investigador; proxies de atención imperfectos; una sola familia DL; SHAP explica la predicción del modelo, no causalidad económica. &
+Es el principal antecedente de la hipótesis de inestabilidad temporal de determinantes predictivos. &
+Taxonomía de variables; partición temporal; análisis por períodos; SHAP; comparación de estabilidad de importancias. &
+No asumir que el ranking 2015--2021 siga vigente ni que las importancias de una LSTM sean universales o causales. &
+Validar períodos recientes y determinar si las importancias permanecen consistentes entre distintas familias de modelos y condiciones de mercado. \\
+\midrule
+
+Mizdrakovic et al. (2024) &
+La descomposición VMD mejora el forecasting bajo su protocolo; EUR/USD, ETH y GBP/USD aparecen entre las variables de mayor contribución según Shapley. &
+Dataset confidencial; ventana 2019--2022; pipeline complejo y costoso; múltiples decisiones de optimización; resultados/rankings sensibles al período y arquitectura. &
+Muestra que variables exógenas y el pipeline de modelado pueden alterar qué factores parecen relevantes. &
+Variables financieras externas; VIX/FX/ETH; evaluación temporal; comparación LSTM/BiLSTM; SHAP. &
+No transferir directamente métricas ni rankings a otro período/modelo; no es posible replicar exactamente el dataset original. &
+Replicar con datos públicos y períodos nuevos, comparando modelos alternativos para medir estabilidad de las explicaciones. \\
+\midrule
+
+Agakishiev et al. (2025) &
+La metadata aporta señal para pronosticar estados de mercado; incorporar información de régimen ayuda en entrenamiento de RL, aunque la mejora fuera de muestra no es inequívoca. &
+Umbrales/regímenes parcialmente heurísticos; requiere series largas; sensibilidad a cambios de distribución; foco final en portafolio y no en determinantes del precio. &
+Fundamenta científicamente tratar Bitcoin como un proceso con cambios de régimen en lugar de una distribución única. &
+Concepto de régimen; divisiones cronológicas; tratamiento temporal del desbalance; LIME; comparación de comportamiento por condición de mercado. &
+No transferir PPO/CRIX ni asumir que su definición de régimen sea óptima para una PoC centrada en explicabilidad del precio. &
+Falta estudiar cómo los cambios de régimen modifican la importancia y estabilidad de determinantes predictivos entre diferentes familias de modelos. \\
+\bottomrule
+\end{longtable}
+\end{landscape}
+}
+
+\section{Síntesis del estado del arte}
+
+Los tres estudios convergen en que Bitcoin no debe modelarse como un proceso estático con un conjunto universal de variables. \textcite{carbo2024} aportan evidencia directa de que la importancia de factores tecnológicos, financieros y de atención cambia entre períodos. \textcite{mizdrakovic2024} muestran que la selección de variables, el preprocesamiento y la arquitectura producen un ranking explicativo diferente, destacando tipos de cambio y Ethereum. Por su parte, \textcite{agakishiev2025} modelan de forma explícita estados de mercado y muestran que la no estacionariedad dificulta la generalización fuera de muestra.
+
+Los resultados no se comparan por cifras de RMSE, F1 o retorno, porque los estudios emplean datasets, objetivos, transformaciones, horizontes y protocolos diferentes. La comparación válida se realiza por problema, naturaleza de datos, metodología, fortalezas, limitaciones, reproducibilidad, interpretabilidad y transferibilidad.
+
+\section{Limitaciones transversales y derivación de brechas}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{De limitación observada a research gap.}
+\begin{tabularx}{\textwidth}{X X}
+\toprule
+\textbf{Limitación observada} & \textbf{Brecha derivada} \\
+\midrule
+La importancia de variables cambia con el tiempo & Falta establecer qué variables mantienen importancia estable entre períodos/regímenes. \\
+Los estudios emplean familias de modelos distintas & Falta separar inestabilidad del mercado de dependencia de la explicación respecto al modelo. \\
+Ventanas históricas terminan en 2021/2022 & Falta validación que incorpore condiciones posteriores y nuevos factores de mercado. \\
+Uno de los datasets es confidencial & Falta evidencia reproducible con una base pública y condiciones de uso claras. \\
+Los modelos complejos pueden mejorar ajuste dentro de muestra & Falta evaluar simultáneamente desempeño fuera de muestra, costo, estabilidad e interpretabilidad. \\
+Los regímenes son relevantes pero pueden ser heurísticos & Falta un protocolo reproducible para evaluar explicaciones por condición de mercado sin fuga temporal. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Research gap principal}
+
+\begin{quote}
+\textbf{Aunque la literatura reciente demuestra que modelos de Machine Learning y Deep Learning pueden utilizar variables financieras, tecnológicas y de atención para modelar Bitcoin, los factores identificados como relevantes difieren entre estudios y períodos. Paralelamente, la literatura de regime switching evidencia que el mercado no presenta una dinámica temporal estable. En consecuencia, no está suficientemente establecido qué determinantes predictivos mantienen una importancia consistente bajo diferentes condiciones de mercado ni en qué medida dicha estabilidad depende de la familia de modelo utilizada.}
+\end{quote}
+
+\section{Justificación preliminar: Machine Learning vs Deep Learning}
+
+La tecnología no se selecciona por moda. Se aplican los cuatro criterios exigidos en la guía.
+
+\subsection{Naturaleza del problema y de los datos}
+Los datos son series temporales multivariadas. Parte de la información puede transformarse en características estructuradas (retornos, volatilidad, actividad on-chain, flujos, etc.), apropiadas para modelos de árboles; al mismo tiempo existe dependencia secuencial, apropiada para LSTM/GRU. Por naturaleza, \textbf{ambos paradigmas son técnicamente viables}.
+
+\subsection{Disponibilidad de datos}
+Existe historial diario público de Bitcoin y métricas on-chain suficiente para una PoC. ML puede funcionar con características diseñadas y un número moderado de observaciones; DL exige mayor cuidado por cantidad efectiva de ventanas, cambios de distribución y tuning. La existencia de datos no justifica por sí sola una red profunda.
+
+\subsection{Recursos computacionales}
+Random Forest/XGBoost presentan entrenamiento e iteración relativamente económicos. LSTM/GRU requieren más tuning, tiempo y memoria. En una investigación de seminario, la ganancia predictiva de DL debe justificar su costo adicional.
+
+\subsection{Interpretabilidad}
+Modelos tabulares de árboles combinados con SHAP permiten estudiar contribuciones globales y locales de forma relativamente directa. Una LSTM puede interpretarse con técnicas post-hoc, pero la dimensión temporal hace más compleja la explicación. Dado que el objetivo central incluye estabilidad de determinantes, la interpretabilidad es un criterio de primera clase.
+
+\subsection{Decisión preliminar}
+No se selecciona definitivamente ML o DL en esta etapa. La PoC debería comparar al menos:
+\begin{itemize}
+  \item un baseline estadístico/ingenuo para contextualizar;
+  \item un modelo ML basado en árboles (por ejemplo XGBoost o Random Forest);
+  \item un modelo secuencial DL (LSTM o GRU);
+\end{itemize}
+utilizando exactamente el mismo protocolo cronológico y sin mezclar aleatoriamente futuro con pasado.
+
+\section{Dataset público candidato para la PoC}
+
+\subsection{Dataset base seleccionado}
+\textbf{Nombre:} Coin Metrics Community Data -- BTC CSV / Community API.\\
+\textbf{Institución/fuente:} Coin Metrics.\\
+\textbf{Acceso:} repositorio público y Community API sin API key \parencite{coinmetricsrepo,coinmetricsapi}.\\
+\textbf{Licencia/condiciones:} CC BY-NC 4.0 para los archivos Community; uso no comercial con atribución \parencite{coinmetricsrepo}.\\
+\textbf{Frecuencia:} diaria para el CSV de BTC.\\
+\textbf{Tamaño observado al 7/9/2026:} 6.351 registros de datos más cabecera, desde 03/01/2009 hasta 24/05/2026 en el archivo consultado; 32 columnas incluyendo la fecha. Debe congelarse una copia/versionado al iniciar la PoC porque el repositorio declara que las métricas disponibles pueden cambiar \parencite{coinmetricsbtc,coinmetricsrepo}.\\
+\textbf{Etiquetas:} no posee etiqueta supervisada predefinida. La variable objetivo será construida de forma explícita a partir de la serie temporal.
+
+\subsection{Variables disponibles y selección candidata}
+El archivo consultado contiene, entre otras: \texttt{PriceUSD}, \texttt{AdrActCnt}, \texttt{AdrBalCnt}, \texttt{BlkCnt}, \texttt{HashRate}, \texttt{FeeTotNtv}, entradas/salidas de exchanges, capitalización, supply, \texttt{TxCnt}, \texttt{TxTfrCnt}, ROI y volumen spot reportado. Algunas métricas presentan valores faltantes o menor cobertura en años iniciales, por lo que la ventana experimental se definirá según cobertura efectiva.
+
+Para una PoC reproducible se propone iniciar en una ventana con datos suficientemente completos (por ejemplo desde 2015) y congelar las variables antes de entrenar. Fuentes financieras/macro y de atención (por ejemplo índices, VIX o Google Trends) podrán incorporarse después como extensión, registrando por separado su procedencia y licencia.
+
+\subsection{Relación con el problema}
+Coin Metrics es adecuado porque contiene simultáneamente variables de mercado y tecnológicas/on-chain, categorías utilizadas en \textcite{carbo2024} y relacionadas con la metadata analizada en \textcite{agakishiev2025}. Además, al ser público permite atacar directamente la limitación de reproducibilidad identificada en \textcite{mizdrakovic2024}.
+
+\subsection{Definición preliminar de objetivo y etiquetas}
+Para evitar interpretar el nivel no estacionario del precio como señal trivial, la PoC considerará como objetivo principal el \textbf{retorno logarítmico del siguiente día}:
+\[
+ r_{t+1}=\log(P_{t+1})-\log(P_t).
+\]
+Como análisis secundario podrá evaluarse dirección de movimiento. Los regímenes (por ejemplo baja volatilidad, alta volatilidad y distress) deberán derivarse usando únicamente información disponible hasta cada instante; los umbrales se calcularán en entrenamiento y se congelarán para validación/prueba para evitar fuga temporal.
+
+\section{Diseño propuesto para la siguiente etapa empírica}
+
+\begin{enumerate}
+  \item Congelar snapshot y diccionario del dataset; medir faltantes y cobertura por variable.
+  \item Construir retornos y características con \emph{lags} sin información futura.
+  \item Definir regímenes con un procedimiento reproducible y parámetros calculados solo en entrenamiento.
+  \item Implementar baseline ingenuo/estadístico, XGBoost o Random Forest y LSTM/GRU.
+  \item Usar validación \emph{walk-forward}/expanding window; nunca \emph{random split} para la evaluación principal.
+  \item Evaluar MAE/RMSE sobre retornos o una métrica apropiada, más desempeño direccional como métrica secundaria; reportar intervalos/variabilidad cuando sea viable.
+  \item Aplicar SHAP al modelo tabular y una técnica de explicación compatible con la red secuencial, explicitando sus supuestos.
+  \item Medir estabilidad de importancia entre regímenes mediante correlación de rankings (p.ej. Spearman) y solapamiento top-$k$ (Jaccard).
+  \item Registrar tiempo de entrenamiento/inferencia y recursos para la comparación ML vs DL.
+\end{enumerate}
+
+Este diseño evita una debilidad frecuente: confundir mejor ajuste en una partición con evidencia de generalización.
+
+\section{Qué sabemos y qué todavía no sabemos}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabularx}{\textwidth}{X X}
+\toprule
+\textbf{Qué sabemos a partir de la literatura} & \textbf{Qué todavía requiere evidencia} \\
+\midrule
+La importancia de factores de Bitcoin puede cambiar con el tiempo. & Qué factores mantienen estabilidad en períodos posteriores a 2021/2022. \\
+Las variables externas/on-chain pueden aportar señal. & Si la señal persiste cuando cambia el régimen y bajo un protocolo público reproducible. \\
+LSTM y modelos complejos pueden capturar no linealidad. & Si su ganancia justifica costo y menor interpretabilidad frente a árboles. \\
+Los regímenes son útiles como representación de estados del mercado. & Si explican cambios sistemáticos en el ranking de determinantes predictivos. \\
+SHAP/LIME ayudan a interpretar predicciones. & Cuánto de la importancia es estable frente a modelo, ventana y distribución. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Próximo paso de investigación}
+
+El siguiente paso no es seleccionar definitivamente un algoritmo. Es realizar una \textbf{auditoría del dataset público}, congelar una ventana temporal reproducible, operacionalizar los regímenes sin fuga de información y construir un protocolo de validación cronológica común. Solo después se compararán ML y DL bajo las mismas condiciones y se analizará la estabilidad de las explicaciones.
+
+\printbibliography[title={Referencias}]
+
+\end{document}
